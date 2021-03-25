@@ -34,6 +34,11 @@ class ZegoPermission {
   static const MethodChannel _channel =
       const MethodChannel('plugins.zego.im/zego_permission');
 
+  static Future<String> get platformVersion async {
+    final String version = await _channel.invokeMethod('getPlatformVersion');
+    return version;
+  }
+
   static Future<List<Permission>> getPermissions(List<PermissionType> list) async {
 
     List<int> indexList = [];
