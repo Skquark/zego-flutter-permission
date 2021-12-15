@@ -1,14 +1,61 @@
 # zego_permission
 
-A new flutter plugin project.
+Goes along with the Zego Express Engine for Flutter (with Null Safety).
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.io/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+Use this code to incorporate within your Zego project:
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.io/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+```dart
+class Authorization {
+  final bool camera;
+  final bool microphone;
+
+  Authorization(this.camera, this.microphone);
+}
+
+// Apply permission
+Future<Authorization?> checkAuthorization() async {
+  List<Permission>? statusList = await ZegoPermission.getPermissions(<PermissionType>[PermissionType.Camera, PermissionType.MicroPhone]);
+
+  if (statusList == null) return null;
+
+  PermissionStatus cameraStatus = PermissionStatus.unknown, micStatus = PermissionStatus.unknown;
+  for (var permission in statusList) {
+    if (permission.permissionType == PermissionType.Camera) cameraStatus = permission.permissionStatus;
+    if (permission.permissionType == PermissionType.MicroPhone) micStatus = permission.permissionStatus;
+  }
+
+  bool camReqResult = true, micReqResult = true;
+  if (cameraStatus != PermissionStatus.granted || micStatus != PermissionStatus.granted) {
+    if (cameraStatus != PermissionStatus.granted) {
+      camReqResult = await ZegoPermission.requestPermission(PermissionType.Camera) ?? true;
+    }
+
+    if (micStatus != PermissionStatus.granted) {
+      micReqResult = await ZegoPermission.requestPermission(PermissionType.MicroPhone) ?? true;
+    }
+  }
+
+  return Authorization(camReqResult, micReqResult);
+}
+
+Future<bool?> checkMicAuthorization() async {
+  List<Permission>? statusList = await ZegoPermission.getPermissions(<PermissionType>[PermissionType.MicroPhone]);
+
+  if (statusList == null) return null;
+
+  PermissionStatus micStatus = PermissionStatus.unknown;
+  for (var permission in statusList) {
+    if (permission.permissionType == PermissionType.MicroPhone) micStatus = permission.permissionStatus;
+  }
+
+  bool micReqResult = true;
+  if (micStatus != PermissionStatus.granted) {
+    if (micStatus != PermissionStatus.granted) {
+      micReqResult = await ZegoPermission.requestPermission(PermissionType.MicroPhone) ?? true;
+    }
+  }
+```
+  return micReqResult;
+}
